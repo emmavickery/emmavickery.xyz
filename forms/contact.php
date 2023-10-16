@@ -1,41 +1,26 @@
 <?php
-  /**
-  * Requires the "PHP Email Form" library
-  * The "PHP Email Form" library is available only in the pro version of the template
-  * The library should be uploaded to: vendor/php-email-form/php-email-form.php
-  * For more info and help: https://bootstrapmade.com/php-email-form/
-  */
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $to = 'ecvick@berkeley.edu';
+    $from_name = $_POST['name'];
+    $from_email = $_POST['email'];
+    $subject = $_POST['subject'];
+    $message = $_POST['message'];
 
-  // Replace contact@example.com with your real receiving email address
-  $receiving_email_address = 'ecvick@berkeley.edu';
+    // Validate input data (you should add more validation as needed)
 
-  if( file_exists($php_email_form = '../assets/vendor/php-email-form/php-email-form.php' )) {
-    include( $php_email_form );
-  } else {
-    die( 'Unable to load the "PHP Email Form" Library!');
-  }
+    if (!filter_var($from_email, FILTER_VALIDATE_EMAIL)) {
+        echo 'Invalid email address.';
+    } else {
+        // Build the email headers
+        $headers = 'From: ' . $from_name . ' <' . $from_email . ">\r\n";
+        $headers .= 'Reply-To: ' . $from_email . "\r\n";
 
-  $contact = new PHP_Email_Form;
-  $contact->ajax = true;
-  
-  $contact->to = $receiving_email_address;
-  $contact->from_name = $_POST['name'];
-  $contact->from_email = $_POST['email'];
-  $contact->subject = $_POST['subject'];
-
-  // Uncomment below code if you want to use SMTP to send emails. You need to enter your correct SMTP credentials
-  /*
-  $contact->smtp = array(
-    'host' => 'example.com',
-    'username' => 'example',
-    'password' => 'pass',
-    'port' => '587'
-  );
-  */
-
-  $contact->add_message( $_POST['name'], 'From');
-  $contact->add_message( $_POST['email'], 'Email');
-  $contact->add_message( $_POST['message'], 'Message', 10);
-
-  echo $contact->send();
+        // Send the email
+        if (mail($to, $subject, $message, $headers)) {
+            echo 'Email sent successfully.';
+        } else {
+            echo 'Error sending email.';
+        }
+    }
+}
 ?>
